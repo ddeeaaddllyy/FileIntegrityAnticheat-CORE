@@ -23,7 +23,7 @@ void showMenu() {
 void configureOutput(KeyLogger& logger) {
     std::cout << "\n=== НАСТРОЙКА ВЫВОДА ===" << std::endl;
     std::cout << "1. Выводить в консоль" << std::endl;
-    std::cout << "2. Сохранять в файл" << std::endl;
+    std::cout << "2. Сохранять в файл (not done yet)" << std::endl;
     std::cout << "3. Оба варианта" << std::endl;
     std::cout << "4. Отмена" << std::endl;
     std::cout << "Выбор: ";
@@ -118,8 +118,3 @@ int start_keylogger() {
     return 0;
 
 }
-
-
-
-
-

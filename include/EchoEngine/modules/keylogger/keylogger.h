@@ -37,6 +37,7 @@ private:
     static void uninstallHooks();
     void processMessageLoop();
 
+
     static void triggerOutput();
     static LRESULT CALLBACK keyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK mouseHookProc(int nCode, WPARAM wParam, LPARAM lParam);
@@ -45,7 +46,6 @@ private:
     static std::string getActiveWindowTitle();
     static void saveLogToBuffer(const std::string& entry);
     static void printBufferedLog();
-
 
 
 private:
