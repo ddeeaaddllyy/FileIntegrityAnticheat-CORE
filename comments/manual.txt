@@ -1,0 +1,110 @@
+FILE INTEGRITY ANTI-CHEAT — MANUAL
+=================================
+
+1. PURPOSE
+----------
+
+This program verifies file integrity by comparing the current file system
+state against a previously saved trusted snapshot (baseline).
+
+It is designed as a foundational anti-cheat / anti-tamper mechanism.
+
+
+2. CORE CONCEPT
+---------------
+
+The engine operates in two phases:
+
+A) BASELINE CREATION
+   - All files in the target directory are scanned
+   - Each file path and size is recorded
+   - Data is saved into "baseline.txt"
+
+B) VERIFICATION
+   - Files are scanned again
+   - Current data is compared with baseline
+   - Differences are reported
+
+
+3. WHAT IS CHECKED
+------------------
+
+✔ File existence
+✔ File size integrity
+
+The program reports:
+- [MISSING]   → file was deleted
+- [MODIFIED]  → file was altered
+
+
+4. WHAT IS NOT CHECKED
+----------------------
+
+✘ File content hashes (yet)
+✘ In-memory modifications
+✘ Runtime process injection
+✘ Kernel-level tampering
+
+This is INTENTIONAL to keep the project minimal and understandable.
+
+
+5. HOW THIS RELATES TO ANTI-CHEAT SYSTEMS
+-----------------------------------------
+
+Real anti-cheat systems use this exact idea as one of several layers:
+
+- File integrity checks (this project)
+- Memory validation
+- Anti-debugging
+- Driver-level monitoring
+- Server-side validation
+
+This project represents the FILE-SYSTEM LAYER.
+
+
+6. COMMON USE CASES
+-------------------
+
+- Detect modified game files
+- Detect removed executables or DLLs
+- Detect cheat loaders placed in directories
+- Verify installation integrity
+- Early tamper detection
+
+
+7. SAFE USAGE RULES
+-------------------
+
+- Always generate baseline on a clean install
+- Do not edit baseline.txt manually
+- Store baseline securely
+- Do not rely on size-only checks in production
+
+
+8. EXTENDING THE PROJECT
+------------------------
+
+Recommended upgrades:
+
+- Replace file size with SHA-256 hashes
+- Add periodic scanning (thread or timer)
+- Limit scanning to specific directories
+- Add whitelist rules
+- Encrypt baseline file
+
+
+9. IMPORTANT WARNING
+--------------------
+
+This project is NOT a full anti-cheat solution.
+It is a learning and foundation tool.
+
+Security is about layers, not single checks.
+
+
+10. FINAL NOTE
+--------------
+
+If you understand this project deeply,
+you already understand one of the core building blocks
+used in real-world protection systems.

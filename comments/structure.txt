@@ -1,0 +1,18 @@
+AntiCheat/
+├── data/
+│   └── baseline.bin
+│
+├── core/
+│   ├── Scanner.cpp
+│   ├── Hash.cpp
+│   ├── Integrity.cpp
+│   └── RuleEngine.h
+│
+├── model/
+│   ├── FileRecord.h
+│   └── Snapshot.h
+│
+├── storage/
+│   └── SnapshotStore.cpp
+│
+└── MainActivity.cpp
