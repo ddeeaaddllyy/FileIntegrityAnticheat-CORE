@@ -1,24 +1,26 @@
 #include "../model/Snapshot.h"
 #include <fstream>
 
-void save_snapshot(const Snapshot& s, const std::string& file) {
+void save_snapshot(const Snapshot& snapshot, const std::string& file) {
     std::ofstream out(file, std::ios::binary);
-    size_t count = s.files.size();
+    size_t count = snapshot.files.size();
     out.write((char*)&count, sizeof(count));
 
-    for (auto& f : s.files) {
-        auto path = f.path.string();
-        size_t len = path.size();
+    for (const auto& record_file : snapshot.files) {
+        auto path = record_file.path.string();
+        size_t length = path.size();
 
-        out.write((char*)&len, sizeof(len));
-        out.write(path.data(), len);
-        out.write((char*)&f.size, sizeof(f.size));
-        out.write((char*)f.hash.data(), 32);
+        out.write((char*)&length, sizeof(length));
+        out.write(path.data(), length);
+        out.write((char*)&record_file.size, sizeof(record_file.size));
+        out.write((char*)record_file.hash.data(), 32);
     }
+
+    out.close();
 }
 
 Snapshot load_snapshot(const std::string& file) {
-    Snapshot s;
+    Snapshot snapshot;
     std::ifstream in(file, std::ios::binary);
 
     size_t count;
@@ -29,19 +31,21 @@ Snapshot load_snapshot(const std::string& file) {
     }
 
     for (size_t i = 0; i < count; ++i) {
-        FileRecord r;
-        size_t len;
-        in.read((char*)& len, sizeof(len));
+        FileRecord record;
+        size_t length;
+        in.read((char*)& length, sizeof(length));
 
-        std::string path(len, '\0');
-        in.read(path.data(), len);
-        r.path = path;
+        std::string path(length, '\0');
+        in.read(path.data(), length);
+        record.path = path;
 
-        in.read((char*)&r.size, sizeof(r.size));
-        in.read((char*)r.hash.data(), 32);
+        in.read((char*)&record.size, sizeof(record.size));
+        in.read((char*)record.hash.data(), 32);
 
-        s.files.push_back(r);
+        snapshot.files.push_back(record);
     }
 
-    return s;
+    in.close();
+
+    return snapshot;
 }
